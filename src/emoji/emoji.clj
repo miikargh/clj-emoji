@@ -31,11 +31,14 @@
   (when (subgroup-start? line)
     (string/trim (last (string/split line #"subgroup:")))))
 
-(defn emoji-line? [line]
+(defn emoji-line?
+  "Determine if line contains emoji info"
+  [line]
   (not (or (string/starts-with? line "#")
            (empty? (string/trim line)))))
 
 (defn parse-emoji-line
+  "Extract emoji info from a line"
   [emoji-line]
   (let [[codes-raw other] (string/split emoji-line #";")
         other-splitted (filter #(not (empty? %))
@@ -46,6 +49,7 @@
     {:char emoji :codes codes :name name}))
 
 (defn parse-emojis
+  "Parse emoji info from unicode emoji definition text. See fetch-emoji-txt."
   ([emoji-text]
    (let [lines (string/split emoji-text #"\n")]
      (parse-emojis lines nil nil [])))
@@ -65,7 +69,9 @@
            (recur (rest lines) group subgroup parsed)))))))
 
 (defn write-emoji-json
-  "Writes emoji json from given emoji-map"
+  "Writes emoji json from given emoji-map to given path"
+  ([]
+   (write-emoji-json ["./emoji.json"]))
   ([path]
    (write-emoji-json path (parse-emojis (fetch-emoji-txt))))
   ([path emoji-map]
